@@ -46,8 +46,8 @@ val copyJSDependencies by tasks.creating(Copy::class) {
 plugins {
     id("org.springframework.boot") version "2.5.6"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.5.31"
-    kotlin("plugin.spring") version "1.5.31"
+    kotlin("jvm") version "1.6.21"
+    kotlin("plugin.spring") version "1.6.21"
 }
 
 allprojects {
@@ -62,8 +62,8 @@ allprojects {
     afterEvaluate {
         dependencies {
             dependencies {
-                implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
-                implementation("org.jetbrains.kotlin:idea:211-$kotlinIdeVersion-IJ7442.40") {
+                implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
+                implementation("org.jetbrains.kotlin:idea:213-$kotlinIdeVersion-IJ6777.52") {
                     isTransitive = false
                 }
             }
@@ -82,14 +82,14 @@ dependencies {
     kotlinDependency("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion")
     kotlinDependency("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     kotlinDependency("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
-    kotlinDependency("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.5.2")
+    kotlinDependency("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1")
     kotlinJsDependency("org.jetbrains.kotlin:kotlin-stdlib-js:$kotlinVersion")
 
     annotationProcessor("org.springframework:spring-context-indexer")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.amazonaws.serverless:aws-serverless-java-container-springboot2:1.6")
+    implementation("com.amazonaws.serverless:aws-serverless-java-container-springboot2:1.8.1")
     implementation("junit:junit:4.12")
-    implementation("net.logstash.logback:logstash-logback-encoder:7.0")
+    implementation("net.logstash.logback:logstash-logback-encoder:7.1.1")
     implementation("org.jetbrains.intellij.deps:trove4j:1.0.20200330")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
@@ -102,15 +102,15 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-compiler-for-ide:$kotlinIdeVersion"){
         isTransitive = false
     }
-    implementation("org.jetbrains.kotlin:common:211-$kotlinIdeVersion-IJ7442.40")
-    implementation("org.jetbrains.kotlin:core:211-$kotlinIdeVersion-IJ7442.40")
+    implementation("org.jetbrains.kotlin:common:213-$kotlinIdeVersion-IJ6777.52")
+    implementation("org.jetbrains.kotlin:core:213-$kotlinIdeVersion-IJ6777.52")
     implementation(project(":executors", configuration = "default"))
     implementation(project(":common", configuration = "default"))
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1")
 }
 
 fun buildPropertyFile() {

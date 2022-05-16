@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.cli.js.K2JsIrCompiler
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoots
+import org.jetbrains.kotlin.cli.jvm.configureAdvancedJvmOptions
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.JVMConfigurationKeys
@@ -25,7 +26,6 @@ import org.jetbrains.kotlin.serialization.js.ModuleKind
 import org.jetbrains.kotlin.util.Logger
 import org.jetbrains.kotlin.utils.KotlinJavascriptMetadataUtils
 import java.io.File
-import org.jetbrains.kotlin.cli.jvm.configureAdvancedJvmOptions
 
 class KotlinEnvironment(
   val classpath: List<File>,
@@ -117,6 +117,7 @@ class KotlinEnvironment(
       put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
       put(CommonConfigurationKeys.MODULE_NAME, "web-module")
       put(JSConfigurationKeys.TYPED_ARRAYS_ENABLED, true)
+      put(JSConfigurationKeys.PROPERTY_LAZY_INITIALIZATION, true)
 
       languageVersionSettings = arguments.toLanguageVersionSettings(messageCollector)
 
