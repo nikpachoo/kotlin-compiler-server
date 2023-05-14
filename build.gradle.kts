@@ -5,14 +5,14 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 val kotlinVersion: String by System.getProperties()
 val kotlinIdeVersion: String by System.getProperties()
+val kotlinIdeVersionSuffix: String by System.getProperties()
 val policy: String by System.getProperties()
 val indexes: String by System.getProperties()
 val indexesJs: String by System.getProperties()
-val executorLogs: String by System.getProperties()
 
 group = "com.compiler.server"
 version = "$kotlinVersion-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 val kotlinDependency: Configuration by configurations.creating {
     isTransitive = false
@@ -26,13 +26,14 @@ val kotlinJsDependency: Configuration by configurations.creating {
         )
         attribute(
             KotlinJsCompilerAttribute.jsCompilerAttribute,
-            KotlinJsCompilerAttribute.legacy
+            KotlinJsCompilerAttribute.ir
         )
     }
 }
 val libJSFolder = "$kotlinVersion-js"
 val libJVMFolder = kotlinVersion
 val propertyFile = "application.properties"
+val jacksonVersionKotlinDependencyJar = "2.14.0" // don't forget to update version in `executor.policy` file.
 
 val copyDependencies by tasks.creating(Copy::class) {
     from(kotlinDependency)
@@ -44,15 +45,17 @@ val copyJSDependencies by tasks.creating(Copy::class) {
 }
 
 plugins {
-    id("org.springframework.boot") version "2.7.3"
-    id("io.spring.dependency-management") version "1.0.13.RELEASE"
-    kotlin("jvm") version "1.7.20-Beta"
-    kotlin("plugin.spring") version "1.7.20-Beta"
+    id("org.springframework.boot") version "2.7.10"
+    id("io.spring.dependency-management") version "1.1.0"
+    val kotlinVersion by System.getProperties()
+    kotlin("jvm") version "$kotlinVersion"
+    kotlin("plugin.spring") version "$kotlinVersion"
 }
 
 allprojects {
     repositories {
         mavenCentral()
+        gradlePluginPortal()
         maven("https://repo.spring.io/snapshot")
         maven("https://repo.spring.io/milestone")
         maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide")
@@ -64,8 +67,8 @@ allprojects {
     afterEvaluate {
         dependencies {
             dependencies {
-                implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
-                implementation("org.jetbrains.kotlin:idea:221-$kotlinIdeVersion-IJ5591.52") {
+                implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2")
+                implementation("org.jetbrains.kotlin:idea:223-$kotlinIdeVersion-$kotlinIdeVersionSuffix") {
                     isTransitive = false
                 }
             }
@@ -76,9 +79,9 @@ allprojects {
 dependencies {
     kotlinDependency("junit:junit:4.13.2")
     kotlinDependency("org.hamcrest:hamcrest:2.2")
-    kotlinDependency("com.fasterxml.jackson.core:jackson-databind:2.13.3")
-    kotlinDependency("com.fasterxml.jackson.core:jackson-core:2.13.3")
-    kotlinDependency("com.fasterxml.jackson.core:jackson-annotations:2.13.3")
+    kotlinDependency("com.fasterxml.jackson.core:jackson-databind:$jacksonVersionKotlinDependencyJar")
+    kotlinDependency("com.fasterxml.jackson.core:jackson-core:$jacksonVersionKotlinDependencyJar")
+    kotlinDependency("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersionKotlinDependencyJar")
     // Kotlin libraries
     kotlinDependency("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     kotlinDependency("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion")
@@ -89,9 +92,9 @@ dependencies {
 
     annotationProcessor("org.springframework:spring-context-indexer")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.amazonaws.serverless:aws-serverless-java-container-springboot2:1.8.2")
+    implementation("com.amazonaws.serverless:aws-serverless-java-container-springboot2:1.9.1")
     implementation("junit:junit:4.13.2")
-    implementation("net.logstash.logback:logstash-logback-encoder:7.2")
+    implementation("net.logstash.logback:logstash-logback-encoder:7.3")
     implementation("org.jetbrains.intellij.deps:trove4j:1.0.20200330")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
@@ -104,8 +107,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-compiler-for-ide:$kotlinIdeVersion"){
         isTransitive = false
     }
-    implementation("org.jetbrains.kotlin:common:221-$kotlinIdeVersion-IJ5591.52")
-    implementation("org.jetbrains.kotlin:core:221-$kotlinIdeVersion-IJ5591.52")
+    implementation("org.jetbrains.kotlin:core:223-$kotlinIdeVersion-$kotlinIdeVersionSuffix")
     implementation(project(":executors", configuration = "default"))
     implementation(project(":common", configuration = "default"))
 
@@ -131,14 +133,19 @@ fun generateProperties(prefix: String = "") = """
     indexesJs.file=${prefix + indexesJs}
     libraries.folder.jvm=${prefix + libJVMFolder}
     libraries.folder.js=${prefix + libJSFolder}
-    executor.logs=${executorLogs}
     spring.mvc.pathmatch.matching-strategy=ant_path_matcher
 """.trimIndent()
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of("17"))
+    }
+}
+
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict", "-Xskip-metadata-version-check")
-        jvmTarget = "1.8"
+        freeCompilerArgs = listOf("-Xjsr305=strict")
+        jvmTarget = "17"
     }
     dependsOn(copyDependencies)
     dependsOn(copyJSDependencies)

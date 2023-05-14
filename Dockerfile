@@ -1,7 +1,14 @@
-FROM openjdk:11-jdk as build
+FROM amazoncorretto:17 as build
 
-ENV KOTLIN_LIB=1.7.20-Beta
-ENV KOTLIN_LIB_JS=1.7.20-Beta-js
+ARG KOTLIN_VERSION
+
+RUN if [ -z "$KOTLIN_VERSION" ]; then \
+        echo "Error: KOTLIN_VERSION argument is not set. Use docker-image-build.sh to build the image." >&2; \
+        exit 1; \
+    fi
+
+ENV KOTLIN_LIB=$KOTLIN_VERSION
+ENV KOTLIN_LIB_JS=${KOTLIN_VERSION}-js
 
 RUN mkdir -p /kotlin-compiler-server
 WORKDIR /kotlin-compiler-server
@@ -10,7 +17,7 @@ ADD . /kotlin-compiler-server
 RUN ./gradlew build -x test
 RUN mkdir -p /build/libs && (cd /build/libs;  jar -xf /kotlin-compiler-server/build/libs/kotlin-compiler-server-${KOTLIN_LIB}-SNAPSHOT.jar)
 
-FROM openjdk:11-jdk
+FROM amazoncorretto:17
 
 RUN mkdir /kotlin-compiler-server
 WORKDIR /kotlin-compiler-server
